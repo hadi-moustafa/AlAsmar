@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-espresso: #1b1714;
+  --color-roast: #2a231e;
+  --color-mocha: #3b3029;
+  --color-crema: #f7f0e6;
+  --color-foam: #fffaf3;
+  --color-latte: #e9dcc9;
+  --color-caramel: #e39a2d;
+  --color-caramel-dark: #b86f12;
+  --color-honey: #f6c05c;
+  --color-whatsapp: #25d366;
+  --color-whatsapp-dark: #128c7e;
+  --font-sans: var(--font-cairo), system-ui, sans-serif;
+  --font-display: var(--font-kufi), var(--font-cairo), sans-serif;
+  --shadow-card: 0 1px 2px rgb(27 23 20 / 0.06), 0 8px 24px -12px rgb(27 23 20 / 0.18);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-crema);
+  color: var(--color-espresso);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-gradient-caramel {
+  background: linear-gradient(180deg, var(--color-honey), var(--color-caramel) 55%, var(--color-caramel-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.35s ease-out;
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-sheet {
+  animation: sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade {
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes steam {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  30% { opacity: 0.55; }
+  100% { transform: translateY(-26px) scaleX(1.4); opacity: 0; }
+}
+.steam span {
+  animation: steam 2.6s ease-in infinite;
+}
+.steam span:nth-child(2) { animation-delay: 0.8s; }
+.steam span:nth-child(3) { animation-delay: 1.6s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
