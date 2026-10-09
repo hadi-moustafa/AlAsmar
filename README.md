@@ -30,7 +30,7 @@ Tabs (keep the tab names and the header row as they are):
 
 1. Import the repo in Vercel.
 2. *Settings → Environment Variables* → add `GOOGLE_SHEET_ID` = the sheet URL (or just its id).
-3. Deploy. The site URL is what goes in the QR code.
+3. Deploy, then open `/qr` on the site to print or download the QR code (it points to the production URL).
 
 ## Local development
 
@@ -45,3 +45,4 @@ npm run dev
 - `src/app/page.tsx` — public menu (server, revalidated every 60s) → `src/components/menu/*` (client: cart, sheets, WhatsApp)
 - `src/lib/data.ts` — reads the Google Sheet tabs and turns them into categories, items, offers and settings
 - `docs/menu-template.xlsx` — starter sheet to import into Google Sheets
+- `src/app/qr` — printable QR code for the menu (`/qr`, downloads at `/qr.png` and `/qr.svg`)

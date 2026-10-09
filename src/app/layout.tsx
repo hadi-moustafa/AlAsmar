@@ -1,13 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Cairo, Reem_Kufi_Fun } from "next/font/google";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const cairo = Cairo({ subsets: ["arabic", "latin"], variable: "--font-cairo" });
 const kufi = Reem_Kufi_Fun({ subsets: ["arabic", "latin"], variable: "--font-kufi" });
-
-const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
