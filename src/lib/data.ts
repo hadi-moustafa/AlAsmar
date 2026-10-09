@@ -27,6 +27,9 @@ const SETTING_LABELS: Record<string, keyof Settings> = {
   "العنوان": "address",
   "أوقات العمل": "hours",
   "انستغرام": "instagram",
+  "فيسبوك": "facebook",
+  "الهاتف": "phone",
+  "رابط الموقع": "maps_url",
   "إعلان": "announcement",
   "التوصيل": "delivery_enabled",
 };
@@ -190,6 +193,8 @@ export async function getPublicMenu() {
     const key = SETTING_LABELS[label] ?? (label in settings ? (label as keyof Settings) : undefined);
     if (!key) continue;
     const value = r["القيمة"] ?? "";
+    // An empty cell keeps the built-in default (shop phone, socials, location…).
+    if (!value) continue;
     if (key === "currency") settings.currency = currency(value);
     else if (key === "delivery_enabled") settings.delivery_enabled = flag(value, true) ? "1" : "0";
     else if (key === "whatsapp_number") settings.whatsapp_number = toLatinDigits(value).replace(/\D/g, "");

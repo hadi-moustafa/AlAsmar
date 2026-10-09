@@ -58,6 +58,30 @@ export const ArrowIcon = (p: P) => (
 export const CheckIcon = (p: P) => (
   <svg {...base(p)}><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
 );
+export const PhoneIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />
+  </svg>
+);
+export const NavigationIcon = (p: P) => (
+  <svg {...base(p)}><path d="m3 11 18-8-8 18-2-8-8-2Z" /></svg>
+);
+export const QrIcon = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+    <path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3" />
+  </svg>
+);
+export const ArrowUpIcon = (p: P) => (
+  <svg {...base(p)}><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+);
+export const FacebookIcon = (p: P) => (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden {...p}>
+    <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1Z" />
+  </svg>
+);
 export const EditIcon = (p: P) => (
   <svg {...base(p)}><path d="M4 20h4L19 9l-4-4L4 16v4Z" /><path d="m13.5 6.5 4 4" /></svg>
 );

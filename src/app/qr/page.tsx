@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { menuQrSvg } from "@/lib/qr";
 import { siteUrl } from "@/lib/site";
 import { PrintButton } from "./PrintButton";
@@ -35,6 +36,9 @@ export default async function QrPage() {
             تحميل SVG
           </a>
         </div>
+        <Link href="/" className="mt-4 block text-center text-sm font-semibold text-mocha underline underline-offset-4 print:hidden">
+          العودة إلى القائمة
+        </Link>
       </div>
     </main>
   );

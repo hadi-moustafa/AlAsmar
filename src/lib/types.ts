@@ -40,17 +40,23 @@ export type Settings = {
   address: string;
   hours: string;
   instagram: string;
+  facebook: string;
+  phone: string;
+  maps_url: string;
   announcement: string;
   delivery_enabled: string;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  whatsapp_number: "",
+  whatsapp_number: "96171819311",
   currency: "USD",
   tagline: "قهوة مختصة وكريب طازج… على الطريقة اللبنانية",
   address: "",
   hours: "",
-  instagram: "",
+  instagram: "https://www.instagram.com/barista_alasmar",
+  facebook: "https://www.facebook.com/share/1BDUXPa3VV/",
+  phone: "71 819 311",
+  maps_url: "https://maps.app.goo.gl/NZzVyibw7Cs3BuqcA",
   announcement: "",
   delivery_enabled: "1",
 };

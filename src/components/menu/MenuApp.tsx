@@ -1,9 +1,23 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { contactLinks } from "@/lib/contact";
 import type { Category, MenuItem, Offer, Settings } from "@/lib/types";
-import { ArrowIcon, BagIcon, ClockIcon, InstagramIcon, PinIcon, PlusIcon, SearchIcon } from "../icons";
+import {
+  BagIcon,
+  ClockIcon,
+  FacebookIcon,
+  InstagramIcon,
+  NavigationIcon,
+  PhoneIcon,
+  PinIcon,
+  PlusIcon,
+  QrIcon,
+  SearchIcon,
+  WhatsAppIcon,
+} from "../icons";
 import { useCart } from "./cart";
 import { CartSheet } from "./CartSheet";
 import { FeaturedCard, ItemRow } from "./ItemCard";
@@ -57,6 +71,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
 
   const icon = (item: MenuItem) => iconFor.get(item.category_id) ?? "☕";
   const rowProps = { cart, currency, onOpen: setOpen };
+  const links = useMemo(() => contactLinks(settings), [settings]);
 
   return (
     <div className="app-col relative min-h-dvh overflow-x-clip bg-ink pb-32">
@@ -85,7 +100,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
         </main>
       ) : (
         <>
-          <Hero settings={settings} />
+          <Hero settings={settings} links={links} />
 
           {offers.length > 0 && <Offers offers={offers} cart={cart} currency={currency} onAdd={addOffer} />}
 
@@ -132,7 +147,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
             </>
           )}
 
-          <Footer settings={settings} />
+          <Footer settings={settings} links={links} />
         </>
       )}
 
@@ -229,13 +244,27 @@ function TopBar({
         </>
       ) : (
         <>
-          <div className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-caramel/70">
-            <Image src="/logo.jpg" alt="" fill priority sizes="40px" className="scale-[1.32] object-cover" />
-          </div>
-          <div className={`flex-1 leading-tight transition-opacity ${scrolled ? "opacity-100" : "opacity-0"}`} aria-hidden={!scrolled}>
-            <p className="font-display text-base font-bold">الأسمر</p>
-            <p className="text-[11px] text-muted">قهوة وكريب</p>
-          </div>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex flex-1 items-center gap-3 text-start"
+            aria-label="العودة إلى الأعلى"
+          >
+            <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-caramel/70">
+              <Image src="/logo.jpg" alt="" fill priority sizes="40px" className="scale-[1.32] object-cover" />
+            </span>
+            <span className={`leading-tight transition-opacity ${scrolled ? "opacity-100" : "opacity-0"}`}>
+              <span className="block font-display text-base font-bold">الأسمر</span>
+              <span className="block text-[11px] text-muted">قهوة وكريب</span>
+            </span>
+          </button>
+          <a
+            href="#visit"
+            className="grid size-10 place-items-center rounded-full bg-surface-2 text-cream ring-1 ring-line transition active:scale-90"
+            aria-label="الموقع والتواصل"
+          >
+            <PinIcon width={19} height={19} />
+          </a>
           <button
             type="button"
             onClick={onSearch}
@@ -250,8 +279,36 @@ function TopBar({
   );
 }
 
-function Hero({ settings }: { settings: Settings }) {
-  const insta = settings.instagram.replace(/^@/, "");
+type Links = ReturnType<typeof contactLinks>;
+
+function QuickActions({ links }: { links: Links }) {
+  const actions = [
+    links.maps && { href: links.maps, label: "الموقع", icon: <NavigationIcon /> },
+    links.tel && { href: links.tel, label: "اتصل بنا", icon: <PhoneIcon /> },
+    links.instagram && { href: links.instagram, label: "انستغرام", icon: <InstagramIcon /> },
+    links.facebook && { href: links.facebook, label: "فيسبوك", icon: <FacebookIcon /> },
+  ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
+  if (!actions.length) return null;
+
+  return (
+    <nav className="mt-5 grid gap-2" style={{ gridTemplateColumns: `repeat(${actions.length}, minmax(0, 1fr))` }} aria-label="تواصل معنا">
+      {actions.map((a) => (
+        <a
+          key={a.label}
+          href={a.href}
+          target={a.href.startsWith("tel:") ? undefined : "_blank"}
+          rel="noopener noreferrer"
+          className="flex flex-col items-center gap-1.5 rounded-2xl bg-surface/80 py-3 text-[12px] font-medium text-cream ring-1 ring-line backdrop-blur transition active:scale-95 active:bg-surface-2"
+        >
+          <span className="text-caramel">{a.icon}</span>
+          {a.label}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function Hero({ settings, links }: { settings: Settings; links: Links }) {
   const chips = [
     settings.hours && { icon: <ClockIcon width={14} height={14} />, text: settings.hours },
     settings.address && { icon: <PinIcon width={14} height={14} />, text: settings.address },
@@ -263,44 +320,34 @@ function Hero({ settings }: { settings: Settings }) {
       <div className="pointer-events-none absolute -top-24 left-1/2 size-[420px] -translate-x-1/2 rounded-full bg-caramel/25 blur-[90px]" />
       <div className="grain pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,black_40%,transparent)]" />
 
-      <div className="animate-rise relative px-5 pb-2 pt-4">
+      <div className="animate-rise relative px-5 pt-2">
         {settings.announcement && (
-          <p className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full bg-caramel/15 py-1.5 pe-3.5 ps-1.5 text-[13px] font-semibold text-caramel ring-1 ring-caramel/30">
+          <p className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full bg-caramel/15 py-1.5 pe-3.5 ps-1.5 text-[13px] font-semibold text-caramel ring-1 ring-caramel/30">
             <span className="rounded-full bg-caramel px-2 py-0.5 text-[11px] font-bold text-ink">جديد</span>
             <span className="truncate">{settings.announcement}</span>
           </p>
         )}
-        <p className="text-sm font-medium tracking-[0.25em] text-caramel" dir="ltr">
+        <p className="text-xs font-medium tracking-[0.25em] text-caramel" dir="ltr">
           BARISTA · AL-ASMAR
         </p>
-        <h1 className="mt-2 font-display text-[44px] font-extrabold leading-[1.1]">
-          شو بتحب
-          <br />
+        <h1 className="mt-1.5 font-display text-[34px] font-extrabold leading-[1.15]">
+          شو بتحب{" "}
           <span className="bg-gradient-to-l from-honey to-caramel bg-clip-text text-transparent">تشرب اليوم؟</span>
         </h1>
-        {settings.tagline && <p className="mt-3 max-w-[30ch] text-[15px] leading-relaxed text-muted">{settings.tagline}</p>}
+        {settings.tagline && <p className="mt-2 text-[15px] leading-relaxed text-muted">{settings.tagline}</p>}
 
-        {(chips.length > 0 || insta) && (
-          <div className="no-scrollbar -mx-5 mt-5 flex gap-2 overflow-x-auto px-5">
+        {chips.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
             {chips.map((c) => (
-              <span key={c.text} className="flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-3 py-2 text-xs text-cream ring-1 ring-line">
+              <span key={c.text} className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs text-cream ring-1 ring-line">
                 <span className="text-caramel">{c.icon}</span>
                 {c.text}
               </span>
             ))}
-            {insta && (
-              <a
-                href={`https://instagram.com/${insta}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-3 py-2 text-xs text-cream ring-1 ring-line active:bg-surface-2"
-              >
-                <InstagramIcon width={14} height={14} className="text-caramel" />
-                <span dir="ltr">@{insta}</span>
-              </a>
-            )}
           </div>
         )}
+
+        <QuickActions links={links} />
       </div>
     </section>
   );
@@ -469,18 +516,102 @@ function CategoryTabs({ sections }: { sections: Section[] }) {
   );
 }
 
-function Footer({ settings }: { settings: Settings }) {
+function Footer({ settings, links }: { settings: Settings; links: Links }) {
+  const socials = [
+    links.instagram && { href: links.instagram, label: "انستغرام", icon: <InstagramIcon /> },
+    links.facebook && { href: links.facebook, label: "فيسبوك", icon: <FacebookIcon /> },
+  ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
+
   return (
-    <footer className="mx-5 mt-14 rounded-3xl bg-surface p-6 text-center ring-1 ring-line">
-      <div className="relative mx-auto size-14 overflow-hidden rounded-full ring-2 ring-caramel/70">
-        <Image src="/logo.jpg" alt="شعار الأسمر" fill sizes="56px" className="scale-[1.32] object-cover" />
+    <footer id="visit" className="mt-14 space-y-3 px-5" style={{ scrollMarginTop: TOP_BAR + 72 }}>
+      <h2 className="font-display text-xl font-bold">زورونا</h2>
+
+      {(links.maps || settings.address || settings.hours) && (
+        <div className="overflow-hidden rounded-3xl bg-surface ring-1 ring-line">
+          {links.maps && (
+            <a href={links.maps} target="_blank" rel="noopener noreferrer" className="relative block h-28 overflow-hidden" aria-label="افتح الموقع على الخريطة">
+              {/* stylised map tile */}
+              <div className="absolute inset-0 bg-surface-2 [background-image:linear-gradient(var(--color-line)_1px,transparent_1px),linear-gradient(90deg,var(--color-line)_1px,transparent_1px)] [background-size:22px_22px]" />
+              <div className="absolute -left-6 top-10 h-3 w-[140%] -rotate-12 bg-line" />
+              <div className="absolute left-1/3 -top-4 h-[150%] w-3 rotate-[20deg] bg-line" />
+              <span className="absolute left-1/2 top-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-caramel text-ink shadow-[0_0_0_8px_rgb(234_165_60/0.2)]">
+                <PinIcon width={22} height={22} />
+              </span>
+            </a>
+          )}
+          <div className="p-4">
+            <p className="font-semibold">مقهى الأسمر</p>
+            {settings.address && <p className="mt-0.5 text-sm text-muted">{settings.address}</p>}
+            {settings.hours && (
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
+                <ClockIcon width={14} height={14} className="text-caramel" /> {settings.hours}
+              </p>
+            )}
+            <div className="mt-3 flex gap-2">
+              {links.maps && (
+                <a
+                  href={links.maps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-caramel font-bold text-ink transition active:scale-[0.98]"
+                >
+                  <NavigationIcon width={18} height={18} /> الاتجاهات
+                </a>
+              )}
+              {links.tel && (
+                <a
+                  href={links.tel}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-surface-2 font-bold ring-1 ring-line transition active:scale-[0.98]"
+                >
+                  <PhoneIcon width={18} height={18} className="text-caramel" />
+                  <bdi dir="ltr">{settings.phone}</bdi>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(socials.length > 0 || links.whatsapp) && (
+        <div className="grid grid-cols-2 gap-2">
+          {socials.map((x) => (
+            <a
+              key={x.href}
+              href={x.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-14 items-center gap-2.5 rounded-2xl bg-surface px-4 text-sm font-semibold ring-1 ring-line transition active:bg-surface-2"
+            >
+              <span className="text-caramel">{x.icon}</span>
+              {x.label}
+            </a>
+          ))}
+          {links.whatsapp && (
+            <a
+              href={links.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-14 items-center gap-2.5 rounded-2xl bg-surface px-4 text-sm font-semibold ring-1 ring-line transition active:bg-surface-2"
+            >
+              <WhatsAppIcon width={20} height={20} className="text-whatsapp" /> واتساب
+            </a>
+          )}
+          <Link
+            href="/qr"
+            className="flex h-14 items-center gap-2.5 rounded-2xl bg-surface px-4 text-sm font-semibold ring-1 ring-line transition active:bg-surface-2"
+          >
+            <QrIcon className="text-caramel" /> رمز QR للقائمة
+          </Link>
+        </div>
+      )}
+
+      <div className="flex flex-col items-center pt-8 text-center">
+        <div className="relative size-12 overflow-hidden rounded-full ring-2 ring-caramel/70">
+          <Image src="/logo.jpg" alt="شعار الأسمر" fill sizes="48px" className="scale-[1.32] object-cover" />
+        </div>
+        <p className="mt-2 font-display font-bold">الأسمر — قهوة وكريب</p>
+        <p className="mt-1 text-[11px] text-muted/60">© {new Date().getFullYear()} Barista Al-Asmar</p>
       </div>
-      <p className="mt-3 font-display text-lg font-bold">الأسمر — قهوة وكريب</p>
-      {settings.address && <p className="mt-1 text-sm text-muted">{settings.address}</p>}
-      <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted">
-        اختر طلبك وأرسله عبر واتساب <ArrowIcon width={14} height={14} />
-      </p>
-      <p className="mt-2 text-[11px] text-muted/60">© {new Date().getFullYear()} Barista Al-Asmar</p>
     </footer>
   );
 }

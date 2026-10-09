@@ -19,11 +19,12 @@ Tabs (keep the tab names and the header row as they are):
 | **الأقسام** | القسم · الأيقونة (emoji) — order of rows = order on the menu |
 | **الأصناف** | القسم · الاسم · الوصف · السعر · الخيارات · الصورة · متوفر · مميز |
 | **العروض** | العنوان · الوصف · السعر · السعر القديم · الصورة · فعّال |
-| **الإعدادات** | الإعداد · القيمة (WhatsApp number, currency, tagline, address, hours, Instagram, announcement, delivery) |
+| **الإعدادات** | الإعداد · القيمة (WhatsApp number, currency, tagline, address, hours, phone, Google Maps link, Instagram, Facebook, announcement, delivery) |
 
 - **الخيارات** (sizes/options): `صغير=3، كبير=4` — each option with its full price. Leave empty for a single price.
 - **الصورة**: a link to a photo. For Google Drive: upload the photo, share it as *Anyone with the link*, and paste the share link. Don't use the `IMAGE()` formula or images pasted into cells — they can't be read.
 - **متوفر / مميز / فعّال**: `نعم` or `لا` (checkboxes also work). Items are available by default.
+- An empty value in الإعدادات keeps the built-in default (the shop's phone, WhatsApp, socials and location are already set in `src/lib/types.ts`).
 - Keep the **القيمة** column in الإعدادات formatted as *Plain text* (the template already is) so the WhatsApp number isn't lost.
 
 ## Deploy on Vercel
