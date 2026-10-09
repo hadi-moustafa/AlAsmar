@@ -2,13 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
-  },
-  experimental: {
-    serverActions: {
-      // Images are resized in the browser before upload, this is just headroom.
-      bodySizeLimit: "5mb",
-    },
+    // Photos are links from the Google Sheet (any host); Drive links are already resized to 800px.
+    unoptimized: true,
   },
 };
 
