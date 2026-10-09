@@ -1,39 +1,52 @@
 @import "tailwindcss";
 
 @theme {
+  /* App (dark, mobile) */
+  --color-ink: #110e0c;
+  --color-surface: #1b1714;
+  --color-surface-2: #251f1b;
+  --color-line: #342c26;
+  --color-cream: #f6eee4;
+  --color-muted: #a99b8c;
+
+  /* Brand */
   --color-espresso: #1b1714;
   --color-roast: #2a231e;
   --color-mocha: #3b3029;
   --color-crema: #f7f0e6;
   --color-foam: #fffaf3;
   --color-latte: #e9dcc9;
-  --color-caramel: #e39a2d;
+  --color-caramel: #eaa53c;
   --color-caramel-dark: #b86f12;
   --color-honey: #f6c05c;
   --color-whatsapp: #25d366;
   --color-whatsapp-dark: #128c7e;
-  --font-sans: var(--font-cairo), system-ui, sans-serif;
-  --font-display: var(--font-kufi), var(--font-cairo), sans-serif;
-  --shadow-card: 0 1px 2px rgb(27 23 20 / 0.06), 0 8px 24px -12px rgb(27 23 20 / 0.18);
+
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-body), sans-serif;
+
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 html {
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
+  background: #0a0807;
 }
 
 body {
-  background: var(--color-crema);
-  color: var(--color-espresso);
+  background: #0a0807;
+  color: var(--color-cream);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
 }
 
-.text-gradient-caramel {
-  background: linear-gradient(180deg, var(--color-honey), var(--color-caramel) 55%, var(--color-caramel-dark));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* The app is a single phone-width column; on bigger screens it stays centered. */
+.app-col {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 440px;
 }
 
 .no-scrollbar {
@@ -47,9 +60,15 @@ body {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
+.grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: 0.12;
+}
+
 @keyframes pop {
   0% { transform: scale(1); }
-  40% { transform: scale(1.18); }
+  40% { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
 .animate-pop {
@@ -61,7 +80,7 @@ body {
   to { transform: translateY(0); }
 }
 .animate-sheet {
-  animation: sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: sheet-up 0.32s var(--ease-spring);
 }
 
 @keyframes fade-in {
@@ -72,21 +91,27 @@ body {
   animation: fade-in 0.2s ease-out;
 }
 
-@keyframes steam {
-  0% { transform: translateY(0) scaleX(1); opacity: 0; }
-  30% { opacity: 0.55; }
-  100% { transform: translateY(-26px) scaleX(1.4); opacity: 0; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.steam span {
-  animation: steam 2.6s ease-in infinite;
+.animate-rise {
+  animation: rise 0.5s var(--ease-spring) both;
 }
-.steam span:nth-child(2) { animation-delay: 0.8s; }
-.steam span:nth-child(3) { animation-delay: 1.6s; }
+
+@keyframes bar-in {
+  from { opacity: 0; transform: translateY(120%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-bar {
+  animation: bar-in 0.4s var(--ease-spring) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 }

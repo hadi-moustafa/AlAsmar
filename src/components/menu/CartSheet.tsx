@@ -1,19 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatPrice } from "@/lib/format";
 import type { Settings } from "@/lib/types";
-import { TrashIcon, WhatsAppIcon } from "../icons";
+import { CheckIcon, TrashIcon, WhatsAppIcon } from "../icons";
 import type { Cart } from "./cart";
 import { QtyStepper } from "./QtyStepper";
 import { Sheet } from "./Sheet";
 import { buildOrderMessage, ORDER_TYPES, whatsappUrl, type OrderDetails, type OrderType } from "./whatsapp";
+import { Price } from "./Price";
 
 const DETAILS_KEY = "alasmar-customer-v1";
 const EMPTY: OrderDetails = { type: "dine_in", name: "", phone: "", table: "", address: "", notes: "" };
 
+// 16px text keeps iOS Safari from zooming into the field.
 const input =
-  "w-full rounded-xl border border-latte bg-foam px-3.5 py-2.5 text-[15px] outline-none transition placeholder:text-mocha/40 focus:border-caramel focus:ring-2 focus:ring-caramel/25";
+  "w-full resize-none rounded-2xl bg-surface-2 px-4 py-3 text-base text-cream outline-none ring-1 ring-line transition placeholder:text-muted/70 focus:ring-2 focus:ring-caramel";
+
+function Field({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold">
+        {label} {optional && <span className="font-normal text-muted">(اختياري)</span>}
+      </span>
+      {children}
+    </label>
+  );
+}
 
 export function CartSheet({
   open,
@@ -79,21 +91,22 @@ export function CartSheet({
       title="طلبك"
       footer={
         cart.count > 0 && (
-          <div className="space-y-2">
-            {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p>}
-            <div className="flex items-center justify-between text-lg font-bold">
-              <span>المجموع</span>
-              <span className="tabular-nums text-caramel-dark">{formatPrice(cart.total, currency)}</span>
-            </div>
+          <div className="space-y-3">
+            {error && <p className="rounded-2xl bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300 ring-1 ring-red-500/30">{error}</p>}
             {sent ? (
-              <div className="space-y-2">
-                <p className="text-center text-sm text-mocha/80">✅ تم فتح واتساب — لا تنسَ الضغط على «إرسال» هناك</p>
+              <div className="space-y-3">
+                <p className="flex items-center justify-center gap-2 text-center text-sm text-muted">
+                  <span className="grid size-5 place-items-center rounded-full bg-whatsapp text-ink">
+                    <CheckIcon width={13} height={13} strokeWidth={3} />
+                  </span>
+                  تم فتح واتساب — لا تنسَ الضغط على «إرسال» هناك
+                </p>
                 <div className="flex gap-2">
-                  <button type="button" onClick={send} className="h-12 flex-1 rounded-full border-2 border-whatsapp font-bold text-whatsapp-dark">
+                  <button type="button" onClick={send} className="h-13 flex-1 rounded-full font-bold text-whatsapp ring-2 ring-whatsapp/60">
                     إعادة الفتح
                   </button>
-                  <button type="button" onClick={done} className="h-12 flex-1 rounded-full bg-espresso font-bold text-crema">
-                    تم الإرسال، طلب جديد
+                  <button type="button" onClick={done} className="h-13 flex-1 rounded-full bg-cream font-bold text-ink">
+                    طلب جديد
                   </button>
                 </div>
               </div>
@@ -101,10 +114,13 @@ export function CartSheet({
               <button
                 type="button"
                 onClick={send}
-                className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-whatsapp text-lg font-bold text-white shadow-lg shadow-whatsapp/30 transition hover:bg-whatsapp-dark active:scale-[0.98]"
+                className="flex h-14 w-full items-center gap-3 rounded-full bg-whatsapp ps-2 pe-5 font-bold text-ink shadow-lg shadow-whatsapp/25 transition active:scale-[0.98]"
               >
-                <WhatsAppIcon />
-                أرسل الطلب عبر واتساب
+                <span className="grid size-10 place-items-center rounded-full bg-ink/15">
+                  <WhatsAppIcon />
+                </span>
+                <span className="flex-1 text-start">أرسل عبر واتساب</span>
+                <span className="tabular-nums"><Price amount={cart.total} currency={currency} /></span>
               </button>
             )}
           </div>
@@ -112,81 +128,96 @@ export function CartSheet({
       }
     >
       {cart.count === 0 ? (
-        <div className="py-12 text-center">
-          <div className="mb-3 text-5xl">☕</div>
-          <p className="font-semibold">سلتك فارغة</p>
-          <p className="mt-1 text-sm text-mocha/70">أضف مشروبك أو كريبك المفضل من القائمة</p>
+        <div className="px-5 py-14 text-center">
+          <div className="mx-auto grid size-20 place-items-center rounded-full bg-surface-2 text-4xl ring-1 ring-line">☕</div>
+          <p className="mt-4 font-semibold">سلتك فارغة</p>
+          <p className="mt-1 text-sm text-muted">أضف مشروبك أو كريبك المفضل من القائمة</p>
         </div>
       ) : (
-        <div className="space-y-5">
-          <ul className="divide-y divide-latte rounded-2xl bg-foam px-3 ring-1 ring-latte/60">
-            {cart.lines.map((l) => (
-              <li key={l.key} className="flex items-center gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{l.name}</p>
-                  <p className="text-xs text-mocha/70">
-                    {l.option && <span className="text-caramel-dark">{l.option} · </span>}
-                    <span className="tabular-nums">{formatPrice(l.unitPrice, currency)}</span>
-                  </p>
-                </div>
-                <span className="w-16 text-left text-sm font-bold tabular-nums">{formatPrice(l.qty * l.unitPrice, currency)}</span>
-                <QtyStepper size="sm" qty={l.qty} onChange={(q) => cart.setQty(l.key, q)} />
-              </li>
-            ))}
-          </ul>
-          <button type="button" onClick={cart.clear} className="flex items-center gap-1 text-xs font-semibold text-red-700/80 hover:text-red-700">
-            <TrashIcon width={14} height={14} /> إفراغ السلة
-          </button>
+        <div className="space-y-7 px-5 pb-6">
+          <section>
+            <ul className="divide-y divide-line">
+              {cart.lines.map((l) => (
+                <li key={l.key} className="flex items-center gap-3 py-3.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{l.name}</p>
+                    <p className="mt-0.5 text-[13px] text-muted">
+                      {l.option && <span className="text-caramel">{l.option} · </span>}
+                      <span className="tabular-nums"><Price amount={l.qty * l.unitPrice} currency={currency} /></span>
+                    </p>
+                  </div>
+                  <QtyStepper size="sm" qty={l.qty} onChange={(q) => cart.setQty(l.key, q)} />
+                </li>
+              ))}
+            </ul>
+            <div className="mt-2 flex items-center justify-between border-t border-dashed border-line pt-4">
+              <button type="button" onClick={cart.clear} className="flex items-center gap-1.5 text-[13px] font-semibold text-muted active:text-red-300">
+                <TrashIcon width={15} height={15} /> إفراغ السلة
+              </button>
+              <p className="text-lg font-bold">
+                <span className="text-sm font-normal text-muted">المجموع </span>
+                <span className="tabular-nums text-caramel"><Price amount={cart.total} currency={currency} /></span>
+              </p>
+            </div>
+          </section>
 
           <fieldset>
-            <legend className="mb-2 text-sm font-bold">كيف تريد طلبك؟</legend>
-            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${types.length}, minmax(0, 1fr))` }}>
+            <legend className="mb-2.5 text-sm font-bold">كيف تريد طلبك؟</legend>
+            <div className="flex rounded-2xl bg-surface-2 p-1 ring-1 ring-line">
               {types.map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => set("type", t)}
-                  className={`rounded-2xl border-2 px-2 py-2.5 text-sm font-bold transition ${
-                    d.type === t ? "border-caramel bg-caramel/15" : "border-latte bg-foam"
+                  className={`flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl text-sm font-semibold transition ${
+                    d.type === t ? "bg-cream text-ink shadow" : "text-muted"
                   }`}
                   aria-pressed={d.type === t}
                 >
-                  <span className="block text-xl">{ORDER_TYPES[t].emoji}</span>
+                  <span aria-hidden>{ORDER_TYPES[t].emoji}</span>
                   {ORDER_TYPES[t].label}
                 </button>
               ))}
             </div>
           </fieldset>
 
-          <div className="space-y-3">
-            <label className="block">
-              <span className="mb-1 block text-sm font-semibold">الاسم</span>
+          <div className="space-y-4">
+            <Field label="الاسم">
               <input className={input} value={d.name} onChange={(e) => set("name", e.target.value)} placeholder="اسمك" autoComplete="name" />
-            </label>
+            </Field>
             {d.type === "dine_in" && (
-              <label className="block">
-                <span className="mb-1 block text-sm font-semibold">رقم الطاولة <span className="font-normal text-mocha/60">(اختياري)</span></span>
+              <Field label="رقم الطاولة" optional>
                 <input className={input} value={d.table} onChange={(e) => set("table", e.target.value)} inputMode="numeric" placeholder="مثال: 4" />
-              </label>
+              </Field>
             )}
             {d.type !== "dine_in" && (
-              <label className="block">
-                <span className="mb-1 block text-sm font-semibold">
-                  رقم الهاتف {d.type === "pickup" && <span className="font-normal text-mocha/60">(اختياري)</span>}
-                </span>
-                <input className={input} value={d.phone} onChange={(e) => set("phone", e.target.value)} inputMode="tel" dir="ltr" placeholder="03 123 456" autoComplete="tel" />
-              </label>
+              <Field label="رقم الهاتف" optional={d.type === "pickup"}>
+                <input
+                  className={`${input} text-right`}
+                  value={d.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                  inputMode="tel"
+                  dir="ltr"
+                  placeholder="03 123 456"
+                  autoComplete="tel"
+                />
+              </Field>
             )}
             {d.type === "delivery" && (
-              <label className="block">
-                <span className="mb-1 block text-sm font-semibold">عنوان التوصيل</span>
-                <textarea className={input} rows={2} value={d.address} onChange={(e) => set("address", e.target.value)} placeholder="المنطقة، الشارع، البناية، الطابق" autoComplete="street-address" />
-              </label>
+              <Field label="عنوان التوصيل">
+                <textarea
+                  className={input}
+                  rows={2}
+                  value={d.address}
+                  onChange={(e) => set("address", e.target.value)}
+                  placeholder="المنطقة، الشارع، البناية، الطابق"
+                  autoComplete="street-address"
+                />
+              </Field>
             )}
-            <label className="block">
-              <span className="mb-1 block text-sm font-semibold">ملاحظات <span className="font-normal text-mocha/60">(اختياري)</span></span>
+            <Field label="ملاحظات" optional>
               <textarea className={input} rows={2} value={d.notes} onChange={(e) => set("notes", e.target.value)} placeholder="مثال: بدون سكر، حليب شوفان…" />
-            </label>
+            </Field>
           </div>
         </div>
       )}

@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo, Reem_Kufi_Fun } from "next/font/google";
+import { Alexandria, Readex_Pro } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const cairo = Cairo({ subsets: ["arabic", "latin"], variable: "--font-cairo" });
-const kufi = Reem_Kufi_Fun({ subsets: ["arabic", "latin"], variable: "--font-kufi" });
+const body = Readex_Pro({ subsets: ["arabic", "latin"], variable: "--font-body" });
+const display = Alexandria({ subsets: ["arabic", "latin"], variable: "--font-display-face" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1b1714",
+  themeColor: "#110e0c",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${kufi.variable}`}>
+    <html lang="ar" dir="rtl" className={`${body.variable} ${display.variable}`}>
       <body>{children}</body>
     </html>
   );
