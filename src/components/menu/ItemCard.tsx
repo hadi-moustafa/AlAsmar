@@ -83,10 +83,12 @@ export function ItemRow({ item, icon, cart, currency, onOpen }: CardProps) {
         </div>
         {item.description && <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-muted">{item.description}</p>}
         <div className="mt-auto flex items-center gap-2 pt-2.5">
-          <span className="font-bold tabular-nums">
-            {hasOptions && <span className="text-xs font-normal text-muted">من </span>}
-            <Price amount={fromPrice(item)} currency={currency} />
-          </span>
+          {fromPrice(item) > 0 && (
+            <span className="font-bold tabular-nums">
+              {hasOptions && <span className="text-xs font-normal text-muted">من </span>}
+              <Price amount={fromPrice(item)} currency={currency} />
+            </span>
+          )}
           {hasOptions && <span className="truncate text-[11px] text-muted">· {item.options.length} أحجام</span>}
           {!item.is_available && <span className="text-xs font-semibold text-muted">· غير متوفر</span>}
         </div>

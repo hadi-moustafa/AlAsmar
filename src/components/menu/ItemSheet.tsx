@@ -61,10 +61,12 @@ export function ItemSheet({
       <div className="-mt-6 px-5 pb-6">
         <div className="relative flex items-start justify-between gap-4">
           <h2 className="font-display text-2xl font-bold leading-snug">{item.name}</h2>
-          <p className="shrink-0 pt-1 text-lg font-bold tabular-nums text-caramel">
-            {hasOptions && <span className="text-xs font-medium text-muted">من </span>}
-            <Price amount={hasOptions ? Math.min(...item.options.map((o) => o.price)) : item.price} currency={currency} />
-          </p>
+          {(hasOptions || item.price > 0) && (
+            <p className="shrink-0 pt-1 text-lg font-bold tabular-nums text-caramel">
+              {hasOptions && <span className="text-xs font-medium text-muted">من </span>}
+              <Price amount={hasOptions ? Math.min(...item.options.map((o) => o.price)) : item.price} currency={currency} />
+            </p>
+          )}
         </div>
         {item.description && <p className="mt-2 leading-relaxed text-muted">{item.description}</p>}
 

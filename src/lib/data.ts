@@ -161,18 +161,23 @@ export async function getPublicMenu() {
 
   const items: MenuItem[] = itemRows
     .filter((r) => r["الاسم"])
-    .map((r, i) => ({
-      id: i + 1,
-      category_id: categoryId(r["القسم"] || "أخرى"),
-      name: r["الاسم"],
-      description: r["الوصف"] ?? "",
-      price: num(r["السعر"]) ?? 0,
-      options: parseOptions(r["الخيارات"]),
-      image_url: imageUrl(r["الصورة"]),
-      is_available: flag(r["متوفر"], true),
-      is_featured: flag(r["مميز"], false),
-      sort_order: i,
-    }));
+    .map((r, i) => {
+      const price = num(r["السعر"]);
+      const options = parseOptions(r["الخيارات"]);
+      return {
+        id: i + 1,
+        category_id: categoryId(r["القسم"] || "أخرى"),
+        name: r["الاسم"],
+        description: r["الوصف"] ?? "",
+        price: price ?? 0,
+        options,
+        image_url: imageUrl(r["الصورة"]),
+        // An item without a price can't be ordered yet, so it shows as unavailable.
+        is_available: flag(r["متوفر"], true) && (price !== null || options.length > 0),
+        is_featured: flag(r["مميز"], false),
+        sort_order: i,
+      };
+    });
 
   const offers: Offer[] = offerRows
     .filter((r) => r["العنوان"] && flag(r["فعال"] ?? r["فعّال"], true))
