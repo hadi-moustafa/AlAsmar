@@ -172,8 +172,7 @@ export async function getPublicMenu() {
         price: price ?? 0,
         options,
         image_url: imageUrl(r["الصورة"]),
-        // An item without a price can't be ordered yet, so it shows as unavailable.
-        is_available: flag(r["متوفر"], true) && (price !== null || options.length > 0),
+        is_available: flag(r["متوفر"], true),
         is_featured: flag(r["مميز"], false),
         sort_order: i,
       };
