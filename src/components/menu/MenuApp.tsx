@@ -611,6 +611,10 @@ function Footer({ settings, links }: { settings: Settings; links: Links }) {
         </div>
         <p className="mt-2 font-display font-bold">الأسمر — قهوة وكريب</p>
         <p className="mt-1 text-[11px] text-muted/60">© {new Date().getFullYear()} Barista Al-Asmar</p>
+        {/* Discreet on purpose: it's for the owner, and the panel asks for a login. */}
+        <Link href="/admin" className="mt-3 px-3 py-1.5 text-[11px] text-muted/50 transition active:text-caramel">
+          دخول الإدارة
+        </Link>
       </div>
     </footer>
   );
