@@ -11,8 +11,10 @@ import {
 
 /** How often (seconds) the menu is re-read from the Google Sheet. */
 export const MENU_REVALIDATE = 60;
+/** Cache tag on every sheet read, expired by the admin panel after a save. */
+export const MENU_TAG = "menu";
 
-const TABS = {
+export const TABS = {
   categories: "الأقسام",
   items: "الأصناف",
   offers: "العروض",
@@ -20,7 +22,7 @@ const TABS = {
 } as const;
 
 /** Settings-tab labels (Arabic as in the template, English keys also accepted). */
-const SETTING_LABELS: Record<string, keyof Settings> = {
+export const SETTING_LABELS: Record<string, keyof Settings> = {
   "رقم واتساب": "whatsapp_number",
   "العملة": "currency",
   "الشعار": "tagline",
@@ -37,7 +39,7 @@ const SETTING_LABELS: Record<string, keyof Settings> = {
 type Row = Record<string, string>;
 
 /** Accepts either the bare sheet id or the full Google Sheets URL. */
-function sheetId() {
+export function sheetId() {
   const raw = process.env.GOOGLE_SHEET_ID?.trim();
   if (!raw) return null;
   return raw.match(/\/d\/([\w-]+)/)?.[1] ?? raw;
@@ -47,7 +49,7 @@ export const isSheetConfigured = () => sheetId() !== null;
 
 async function readTab(id: string, tab: string, required: string[]): Promise<Row[]> {
   const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
-  const res = await fetch(url, { next: { revalidate: MENU_REVALIDATE } });
+  const res = await fetch(url, { next: { revalidate: MENU_REVALIDATE, tags: [MENU_TAG] } });
   if (!res.ok) {
     throw new Error(`Google Sheet "${tab}" could not be read (HTTP ${res.status}). Is it shared as "Anyone with the link"?`);
   }
@@ -96,7 +98,7 @@ function parseCsv(text: string): string[][] {
 const toLatinDigits = (s: string) =>
   s.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
 
-function num(s: string | undefined) {
+export function num(s: string | undefined) {
   const t = toLatinDigits(s ?? "").replace(/٫/g, ".");
   if (!/\d/.test(t)) return null;
   const n = Number(t.replace(/[^\d.]/g, ""));
@@ -105,7 +107,7 @@ function num(s: string | undefined) {
 
 const YES = new Set(["نعم", "اي", "أي", "ايه", "yes", "y", "true", "1", "✓", "✔"]);
 const NO = new Set(["لا", "no", "n", "false", "0", "✗", "✘"]);
-function flag(s: string | undefined, fallback: boolean) {
+export function flag(s: string | undefined, fallback: boolean) {
   const v = (s ?? "").trim().toLowerCase();
   if (YES.has(v)) return true;
   if (NO.has(v)) return false;
@@ -113,7 +115,7 @@ function flag(s: string | undefined, fallback: boolean) {
 }
 
 /** "صغير=3، كبير=4" (also ":" and new lines / commas as separators). */
-function parseOptions(s: string | undefined): ItemOption[] {
+export function parseOptions(s: string | undefined): ItemOption[] {
   if (!s) return [];
   return s
     .split(/[\n,،;؛|]+/)
