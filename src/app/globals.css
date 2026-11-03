@@ -203,6 +203,37 @@ body {
   88%, 100% { opacity: 0; transform: translateY(-7px) scale(1.15); }
 }
 
+/* Bubbles and puffs repeat at their own pace, staggered, under the card's 1.5s timeline. */
+.shisha-coal {
+  animation: shisha-coal 1.5s ease-in-out both;
+}
+.shisha-bubble {
+  animation: shisha-bubble 0.55s ease-in 0.12s 2 both;
+}
+.shisha-bubble:nth-child(2) { animation-delay: 0.3s; }
+.shisha-bubble:nth-child(3) { animation-delay: 0.45s; }
+.shisha-puff {
+  animation: shisha-puff 1s ease-out 0.2s both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.shisha-puff:nth-child(2) { animation-delay: 0.38s; }
+.shisha-puff:nth-child(3) { animation-delay: 0.52s; }
+
+@keyframes shisha-coal {
+  0%, 100% { fill: var(--color-caramel-dark); }
+  50% { fill: var(--color-honey); }
+}
+@keyframes shisha-bubble {
+  from { opacity: 0.9; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-15px); }
+}
+@keyframes shisha-puff {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  25% { opacity: 0.55; }
+  100% { opacity: 0; transform: translate(-13px, -40px) scale(2); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

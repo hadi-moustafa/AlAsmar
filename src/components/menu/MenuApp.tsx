@@ -25,13 +25,23 @@ import { FeaturedCard, ItemRow } from "./ItemCard";
 import { ItemSheet } from "./ItemSheet";
 import { Price } from "./Price";
 import { SelectionEffect, type EffectKind } from "./SelectionEffect";
-import { playFlipSound, playPourSound } from "./sounds";
+import { playFlipSound, playPourSound, playShishaSound } from "./sounds";
 
 type Props = { categories: Category[]; items: MenuItem[]; offers: Offer[]; settings: Settings };
 type Section = Category & { items: MenuItem[] };
 
 const TOP_BAR = 60; // px, height of the sticky app bar
-const FLIPPED_FOOD = /cr[eéê]pe|pan ?cake|كريب|بان ?كيك/i; // names the owner may use in the sheet
+// Names the owner may use in the sheet. Everything else pours coffee.
+const EFFECT_NAMES: [EffectKind, RegExp][] = [
+  ["shisha", /shisha|hookah|argh?ile|شيشة|[أا]ركيلة|[أا]رجيلة|نرجيلة|معسل/i],
+  ["flip", /cr[eéê]pe|pan ?cake|كريب|بان ?كيك/i],
+];
+const effectForName = (name: string) => EFFECT_NAMES.find(([, pattern]) => pattern.test(name))?.[0];
+const EFFECT_SOUNDS: Record<EffectKind, () => void> = {
+  pour: playPourSound,
+  flip: playFlipSound,
+  shisha: playShishaSound,
+};
 
 export function MenuApp({ categories, items, offers, settings }: Props) {
   const cart = useCart();
@@ -66,22 +76,20 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
     prevCount.current = cart.count;
   }, [cart.count]);
 
-  // Cart keys of everything that flips a pancake when added; the rest pours coffee.
-  const flippedKeys = useMemo(() => {
+  // The effect for each cart key that doesn't just pour coffee.
+  const specialEffects = useMemo(() => {
     const categoryName = new Map(categories.map((c) => [c.id, c.name]));
-    return new Set([
-      ...items
-        .filter((i) => FLIPPED_FOOD.test(`${categoryName.get(i.category_id)} ${i.name}`))
-        .map((i) => `item:${i.id}`),
-      ...offers.filter((o) => FLIPPED_FOOD.test(o.title)).map((o) => `offer:${o.id}`),
-    ]);
+    const entries: [string, string][] = [
+      ...items.map((i): [string, string] => [`item:${i.id}`, `${categoryName.get(i.category_id)} ${i.name}`]),
+      ...offers.map((o): [string, string] => [`offer:${o.id}`, o.title]),
+    ];
+    return new Map(entries.map(([key, name]) => [key, effectForName(name)]));
   }, [categories, items, offers]);
 
   const startEffect = (cartKey: string) => {
     // Sized items are keyed "item:<id>:<size>"; the first two parts identify the item.
-    const kind: EffectKind = flippedKeys.has(cartKey.split(":").slice(0, 2).join(":")) ? "flip" : "pour";
-    if (kind === "flip") playFlipSound();
-    else playPourSound();
+    const kind = specialEffects.get(cartKey.split(":").slice(0, 2).join(":")) ?? "pour";
+    EFFECT_SOUNDS[kind]();
     setEffect((e) => ({ id: (e?.id ?? 0) + 1, kind }));
   };
   // What the menu uses to select items: the cart, plus an effect whenever something is added.

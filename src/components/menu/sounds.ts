@@ -5,12 +5,14 @@ const POUR_SECONDS = 1.3;
 const FLIP_SECONDS = 1.4;
 const FLIP_TOSS_AT = 0.3;
 const FLIP_LAND_AT = 0.99;
+const SHISHA_SECONDS = 1.35;
 
 let ctx: AudioContext | null = null;
 let stopCurrent: (() => void) | null = null;
 
 export const playPourSound = () => play(schedulePour);
 export const playFlipSound = () => play(scheduleFlip);
+export const playShishaSound = () => play(scheduleShisha);
 
 function play(schedule: (audio: AudioContext) => () => void) {
   try {
@@ -119,6 +121,47 @@ function scheduleFlip(audio: AudioContext) {
   thud.stop(land + 0.17);
 
   sizzle.onended = () => master.disconnect();
+  return fadeOut(audio, master);
+}
+
+function scheduleShisha(audio: AudioContext) {
+  const now = audio.currentTime;
+  const end = now + SHISHA_SECONDS;
+
+  const master = audio.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.5, now + 0.12);
+  master.gain.setValueAtTime(0.5, end - 0.3);
+  master.gain.exponentialRampToValueAtTime(0.0001, end);
+  master.connect(audio.destination);
+
+  // The breath drawn through the hose: quiet, muffled noise.
+  const breath = noiseSource(audio, SHISHA_SECONDS);
+  const breathTone = audio.createBiquadFilter();
+  breathTone.type = "lowpass";
+  breathTone.frequency.value = 700;
+  const breathLevel = audio.createGain();
+  breathLevel.gain.value = 0.12;
+  breath.connect(breathTone).connect(breathLevel).connect(master);
+  breath.start(now);
+  breath.stop(end);
+
+  // Water bubbling in the base: a quick, uneven run of low, rising blips.
+  for (let at = now + 0.1; at < end - 0.2; at += 0.05 + Math.random() * 0.07) {
+    const pitch = 130 + Math.random() * 170;
+    const bubble = audio.createOscillator();
+    bubble.frequency.setValueAtTime(pitch, at);
+    bubble.frequency.exponentialRampToValueAtTime(pitch * 1.9, at + 0.06);
+    const level = audio.createGain();
+    level.gain.setValueAtTime(0.0001, at);
+    level.gain.exponentialRampToValueAtTime(0.5, at + 0.012);
+    level.gain.exponentialRampToValueAtTime(0.0001, at + 0.08);
+    bubble.connect(level).connect(master);
+    bubble.start(at);
+    bubble.stop(at + 0.09);
+  }
+
+  breath.onended = () => master.disconnect();
   return fadeOut(audio, master);
 }
 
