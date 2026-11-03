@@ -22,10 +22,11 @@ export const MinusIcon = (p: P) => (
 export const XIcon = (p: P) => (
   <svg {...base(p)}><path d="M18 6 6 18M6 6l12 12" /></svg>
 );
-export const BagIcon = (p: P) => (
+export const CartIcon = (p: P) => (
   <svg {...base(p)}>
-    <path d="M6 7h12l-1 13H7L6 7Z" />
-    <path d="M9 7a3 3 0 0 1 6 0" />
+    <path d="M2 3h2l2.7 12.4a2 2 0 0 0 2 1.6h9.6a2 2 0 0 0 2-1.6L22 7H5.1" />
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="18" cy="21" r="1" />
   </svg>
 );
 export const SearchIcon = (p: P) => (

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { contactLinks } from "@/lib/contact";
 import type { Category, MenuItem, Offer, Settings } from "@/lib/types";
 import {
-  BagIcon,
+  CartIcon,
   ClockIcon,
   FacebookIcon,
   InstagramIcon,
@@ -185,7 +185,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
               className="flex h-full min-w-0 flex-1 items-center gap-3 rounded-[22px] ps-2.5 transition active:scale-[0.98]"
             >
               <span className="relative grid size-11 shrink-0 place-items-center rounded-2xl bg-ink/90 text-caramel">
-                <BagIcon />
+                <CartIcon width={23} height={23} />
                 <span className="absolute -left-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-cream text-[11px] font-bold text-ink">
                   {cart.count}
                 </span>
