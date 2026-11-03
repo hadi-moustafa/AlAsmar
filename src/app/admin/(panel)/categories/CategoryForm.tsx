@@ -5,8 +5,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { DeleteButton, FormMessage, inputCls, SubmitButton } from "@/components/admin/ui";
 import type { AdminCategory } from "@/lib/admin-data";
 import { deleteCategory, saveCategory } from "../../actions";
-
-const EMOJIS = ["☕", "🧋", "🥤", "🍵", "🧃", "🍹", "🥞", "🧇", "🍫", "🍓", "🧀", "🥪", "🍰", "🍦", "🥐", "🍪"];
+import { IconPicker } from "./IconPicker";
 
 export function CategoryForm({ category, itemCount = 0 }: { category?: AdminCategory; itemCount?: number }) {
   const [state, action] = useActionState(saveCategory, undefined);
@@ -31,18 +30,7 @@ export function CategoryForm({ category, itemCount = 0 }: { category?: AdminCate
         <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-2 text-2xl ring-1 ring-line">{icon}</span>
         <input name="name" required defaultValue={category?.name} placeholder="اسم القسم" className={inputCls} />
       </div>
-      <div className="no-scrollbar flex gap-1 overflow-x-auto">
-        {EMOJIS.map((e) => (
-          <button
-            key={e}
-            type="button"
-            onClick={() => setIcon(e)}
-            className={`grid size-9 shrink-0 place-items-center rounded-lg text-lg ${icon === e ? "bg-caramel/30 ring-2 ring-caramel" : "hover:bg-surface-2"}`}
-          >
-            {e}
-          </button>
-        ))}
-      </div>
+      <IconPicker value={icon} onChange={setIcon} />
       <FormMessage state={state} />
       <div className="flex items-center gap-2">
         <SubmitButton className="h-10 text-sm">{category ? "حفظ" : "إضافة القسم"}</SubmitButton>
