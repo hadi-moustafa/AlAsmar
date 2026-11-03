@@ -107,6 +107,48 @@ body {
   animation: bar-in 0.4s var(--ease-spring) both;
 }
 
+/* Coffee pour, shown when an item is added. Every part shares one timeline. */
+.pour-card,
+.pour-pot,
+.pour-stream,
+.pour-fill,
+.pour-steam {
+  animation-duration: 1.5s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-in-out;
+}
+.pour-card { animation-name: pour-card; }
+.pour-pot { animation-name: pour-pot; transform-box: fill-box; transform-origin: center; }
+.pour-stream { animation-name: pour-stream; transform-box: fill-box; }
+.pour-fill { animation-name: pour-fill; animation-timing-function: linear; }
+.pour-steam { animation-name: pour-steam; }
+
+@keyframes pour-card {
+  0% { opacity: 0; transform: translateY(14px) scale(0.85); }
+  12%, 88% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.96); }
+}
+@keyframes pour-pot {
+  0% { transform: translate(2px, 2px) rotate(20deg); }
+  18%, 70% { transform: translate(0, 0) rotate(0deg); }
+  84%, 100% { transform: translate(2px, 2px) rotate(20deg); }
+}
+@keyframes pour-stream {
+  0%, 16% { transform: scaleY(0); transform-origin: top; }
+  28%, 68% { transform: scaleY(1); transform-origin: top; }
+  69% { transform: scaleY(1); transform-origin: bottom; }
+  78%, 100% { transform: scaleY(0); transform-origin: bottom; }
+}
+@keyframes pour-fill {
+  0%, 24% { transform: translateY(34px); }
+  74%, 100% { transform: translateY(0); }
+}
+@keyframes pour-steam {
+  0%, 68% { opacity: 0; transform: translateY(6px); }
+  80% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

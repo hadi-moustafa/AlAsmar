@@ -17,11 +17,14 @@ import {
   QrIcon,
   SearchIcon,
   WhatsAppIcon,
+  XIcon,
 } from "../icons";
-import { useCart } from "./cart";
+import { useCart, type Cart } from "./cart";
 import { CartSheet } from "./CartSheet";
 import { FeaturedCard, ItemRow } from "./ItemCard";
 import { ItemSheet } from "./ItemSheet";
+import { PourAnimation } from "./PourAnimation";
+import { playPourSound } from "./pourSound";
 import { Price } from "./Price";
 
 type Props = { categories: Category[]; items: MenuItem[]; offers: Offer[]; settings: Settings };
@@ -37,6 +40,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState("");
   const [bump, setBump] = useState(0);
+  const [pour, setPour] = useState(0);
 
   const sections = useMemo<Section[]>(
     () =>
@@ -61,7 +65,25 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
     prevCount.current = cart.count;
   }, [cart.count]);
 
-  const addOffer = (o: Offer) => cart.add({ key: `offer:${o.id}`, name: `عرض: ${o.title}`, unitPrice: o.price });
+  const startPour = () => {
+    playPourSound();
+    setPour((p) => p + 1);
+  };
+  // What the menu uses to select items: the cart, plus a pour whenever something is added.
+  // The order sheet keeps the plain cart, so reviewing an order stays quiet.
+  const selecting: Cart = {
+    ...cart,
+    add: (line, qty) => {
+      startPour();
+      cart.add(line, qty);
+    },
+    setQty: (key, qty) => {
+      if (qty > (cart.lines.find((l) => l.key === key)?.qty ?? 0)) startPour();
+      cart.setQty(key, qty);
+    },
+  };
+
+  const addOffer = (o: Offer) => selecting.add({ key: `offer:${o.id}`, name: `عرض: ${o.title}`, unitPrice: o.price });
   const closeCart = useCallback(() => setCartOpen(false), []);
   const closeItem = useCallback(() => setOpen(null), []);
   const closeSearch = () => {
@@ -70,7 +92,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
   };
 
   const icon = (item: MenuItem) => iconFor.get(item.category_id) ?? "☕";
-  const rowProps = { cart, currency, onOpen: setOpen };
+  const rowProps = { cart: selecting, currency, onOpen: setOpen };
   const links = useMemo(() => contactLinks(settings), [settings]);
 
   return (
@@ -153,26 +175,40 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
 
       {cart.count > 0 && (
         <div className="app-col pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-safe">
-          <button
-            type="button"
+          <div
             key={bump}
-            onClick={() => setCartOpen(true)}
-            className={`${bump ? "animate-pop" : "animate-bar"} pointer-events-auto flex h-16 w-full items-center gap-3 rounded-[22px] bg-caramel ps-2.5 pe-5 text-ink shadow-[0_16px_40px_-8px_rgb(234_165_60/0.45)] transition active:scale-[0.98]`}
+            className={`${bump ? "animate-pop" : "animate-bar"} pointer-events-auto flex h-16 w-full items-center gap-1 rounded-[22px] bg-caramel pe-2.5 text-ink shadow-[0_16px_40px_-8px_rgb(234_165_60/0.45)]`}
           >
-            <span className="relative grid size-11 place-items-center rounded-2xl bg-ink/90 text-caramel">
-              <BagIcon />
-              <span className="absolute -left-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-cream text-[11px] font-bold text-ink">
-                {cart.count}
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="flex h-full min-w-0 flex-1 items-center gap-3 rounded-[22px] ps-2.5 transition active:scale-[0.98]"
+            >
+              <span className="relative grid size-11 shrink-0 place-items-center rounded-2xl bg-ink/90 text-caramel">
+                <BagIcon />
+                <span className="absolute -left-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-cream text-[11px] font-bold text-ink">
+                  {cart.count}
+                </span>
               </span>
-            </span>
-            <span className="flex-1 text-start">
-              <span className="block text-[11px] font-medium opacity-70">طلبك جاهز؟</span>
-              <span className="block font-bold leading-tight">عرض الطلب</span>
-            </span>
-            <span className="text-lg font-bold tabular-nums"><Price amount={cart.total} currency={currency} /></span>
-          </button>
+              <span className="flex-1 text-start">
+                <span className="block text-[11px] font-medium opacity-70">طلبك جاهز؟</span>
+                <span className="block font-bold leading-tight">عرض الطلب</span>
+              </span>
+              <span className="text-lg font-bold tabular-nums"><Price amount={cart.total} currency={currency} /></span>
+            </button>
+            <button
+              type="button"
+              onClick={cart.clear}
+              aria-label="إفراغ السلة"
+              className="grid size-11 shrink-0 place-items-center rounded-full bg-ink/15 transition active:scale-90 active:bg-ink/25"
+            >
+              <XIcon width={20} height={20} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
       )}
+
+      {pour > 0 && <PourAnimation key={pour} onDone={() => setPour(0)} />}
 
       <CartSheet open={cartOpen} onClose={closeCart} cart={cart} settings={settings} />
       {open && (
@@ -183,10 +219,10 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
           currency={currency}
           onClose={closeItem}
           onAdd={(i, qty) => {
-            if (i === null) cart.add({ key: `item:${open.id}`, name: open.name, unitPrice: open.price }, qty);
+            if (i === null) selecting.add({ key: `item:${open.id}`, name: open.name, unitPrice: open.price }, qty);
             else {
               const o = open.options[i];
-              cart.add({ key: `item:${open.id}:${o.name}`, name: open.name, option: o.name, unitPrice: o.price }, qty);
+              selecting.add({ key: `item:${open.id}:${o.name}`, name: open.name, option: o.name, unitPrice: o.price }, qty);
             }
             setOpen(null);
           }}
