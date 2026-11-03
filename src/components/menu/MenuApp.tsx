@@ -23,14 +23,15 @@ import { useCart, type Cart } from "./cart";
 import { CartSheet } from "./CartSheet";
 import { FeaturedCard, ItemRow } from "./ItemCard";
 import { ItemSheet } from "./ItemSheet";
-import { PourAnimation } from "./PourAnimation";
-import { playPourSound } from "./pourSound";
 import { Price } from "./Price";
+import { SelectionEffect, type EffectKind } from "./SelectionEffect";
+import { playFlipSound, playPourSound } from "./sounds";
 
 type Props = { categories: Category[]; items: MenuItem[]; offers: Offer[]; settings: Settings };
 type Section = Category & { items: MenuItem[] };
 
 const TOP_BAR = 60; // px, height of the sticky app bar
+const FLIPPED_FOOD = /cr[eéê]pe|pan ?cake|كريب|بان ?كيك/i; // names the owner may use in the sheet
 
 export function MenuApp({ categories, items, offers, settings }: Props) {
   const cart = useCart();
@@ -40,7 +41,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState("");
   const [bump, setBump] = useState(0);
-  const [pour, setPour] = useState(0);
+  const [effect, setEffect] = useState<{ id: number; kind: EffectKind } | null>(null);
 
   const sections = useMemo<Section[]>(
     () =>
@@ -65,20 +66,34 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
     prevCount.current = cart.count;
   }, [cart.count]);
 
-  const startPour = () => {
-    playPourSound();
-    setPour((p) => p + 1);
+  // Cart keys of everything that flips a pancake when added; the rest pours coffee.
+  const flippedKeys = useMemo(() => {
+    const categoryName = new Map(categories.map((c) => [c.id, c.name]));
+    return new Set([
+      ...items
+        .filter((i) => FLIPPED_FOOD.test(`${categoryName.get(i.category_id)} ${i.name}`))
+        .map((i) => `item:${i.id}`),
+      ...offers.filter((o) => FLIPPED_FOOD.test(o.title)).map((o) => `offer:${o.id}`),
+    ]);
+  }, [categories, items, offers]);
+
+  const startEffect = (cartKey: string) => {
+    // Sized items are keyed "item:<id>:<size>"; the first two parts identify the item.
+    const kind: EffectKind = flippedKeys.has(cartKey.split(":").slice(0, 2).join(":")) ? "flip" : "pour";
+    if (kind === "flip") playFlipSound();
+    else playPourSound();
+    setEffect((e) => ({ id: (e?.id ?? 0) + 1, kind }));
   };
-  // What the menu uses to select items: the cart, plus a pour whenever something is added.
+  // What the menu uses to select items: the cart, plus an effect whenever something is added.
   // The order sheet keeps the plain cart, so reviewing an order stays quiet.
   const selecting: Cart = {
     ...cart,
     add: (line, qty) => {
-      startPour();
+      startEffect(line.key);
       cart.add(line, qty);
     },
     setQty: (key, qty) => {
-      if (qty > (cart.lines.find((l) => l.key === key)?.qty ?? 0)) startPour();
+      if (qty > (cart.lines.find((l) => l.key === key)?.qty ?? 0)) startEffect(key);
       cart.setQty(key, qty);
     },
   };
@@ -208,7 +223,7 @@ export function MenuApp({ categories, items, offers, settings }: Props) {
         </div>
       )}
 
-      {pour > 0 && <PourAnimation key={pour} onDone={() => setPour(0)} />}
+      {effect && <SelectionEffect key={effect.id} kind={effect.kind} onDone={() => setEffect(null)} />}
 
       <CartSheet open={cartOpen} onClose={closeCart} cart={cart} settings={settings} />
       {open && (
