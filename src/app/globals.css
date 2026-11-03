@@ -107,23 +107,37 @@ body {
   animation: bar-in 0.4s var(--ease-spring) both;
 }
 
-/* Coffee pour, shown when an item is added. Every part shares one timeline. */
-.pour-card,
+/* Selection effects, shown when an item is added. Every part of a scene shares one timeline. */
+.effect-card,
 .pour-pot,
 .pour-stream,
 .pour-fill,
-.pour-steam {
+.pour-steam,
+.flip-pan,
+.flip-rise,
+.flip-spin,
+.flip-side-pale,
+.flip-side-golden,
+.flip-steam,
+.flip-crumbs {
   animation-duration: 1.5s;
   animation-fill-mode: both;
   animation-timing-function: ease-in-out;
 }
-.pour-card { animation-name: pour-card; }
+.effect-card { animation-name: effect-card; }
 .pour-pot { animation-name: pour-pot; transform-box: fill-box; transform-origin: center; }
 .pour-stream { animation-name: pour-stream; transform-box: fill-box; }
 .pour-fill { animation-name: pour-fill; animation-timing-function: linear; }
 .pour-steam { animation-name: pour-steam; }
+.flip-pan { animation-name: flip-pan; transform-box: fill-box; transform-origin: 100% 40%; }
+.flip-rise { animation-name: flip-rise; }
+.flip-spin { animation-name: flip-spin; transform-box: fill-box; transform-origin: center; }
+.flip-side-pale { animation-name: flip-side-pale; animation-timing-function: step-end; }
+.flip-side-golden { animation-name: flip-side-golden; animation-timing-function: step-end; }
+.flip-steam { animation-name: flip-steam; }
+.flip-crumbs { animation-name: flip-crumbs; transform-box: fill-box; transform-origin: center; }
 
-@keyframes pour-card {
+@keyframes effect-card {
   0% { opacity: 0; transform: translateY(14px) scale(0.85); }
   12%, 88% { opacity: 1; transform: translateY(0) scale(1); }
   100% { opacity: 0; transform: translateY(-8px) scale(0.96); }
@@ -147,6 +161,46 @@ body {
   0%, 68% { opacity: 0; transform: translateY(6px); }
   80% { opacity: 0.8; }
   100% { opacity: 0; transform: translateY(-6px); }
+}
+
+/* The toss starts at 20% and lands at 66%; sounds.ts plays in time with these. */
+@keyframes flip-pan {
+  0%, 12% { transform: rotate(0deg); }
+  18% { transform: rotate(-5deg); }
+  24% { transform: rotate(4deg); }
+  32%, 62% { transform: rotate(0deg); }
+  67% { transform: translateY(2px) rotate(-2deg); }
+  76%, 100% { transform: translateY(0) rotate(0deg); }
+}
+@keyframes flip-rise {
+  0%, 20% { transform: translateY(0); animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }
+  43% { transform: translateY(-58px); animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4); }
+  66%, 100% { transform: translateY(0); }
+}
+@keyframes flip-spin {
+  0%, 20% { transform: scale(1, 1) rotate(0deg); }
+  43% { transform: scale(1, 0.08) rotate(-10deg); }
+  64% { transform: scale(1, 1) rotate(0deg); }
+  68% { transform: scale(1.06, 0.82) rotate(0deg); }
+  76%, 100% { transform: scale(1, 1) rotate(0deg); }
+}
+@keyframes flip-side-pale {
+  0% { opacity: 1; }
+  43%, 100% { opacity: 0; }
+}
+@keyframes flip-side-golden {
+  0% { opacity: 0; }
+  43%, 100% { opacity: 1; }
+}
+@keyframes flip-steam {
+  0%, 68% { opacity: 0; transform: translateY(6px); }
+  80% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes flip-crumbs {
+  0%, 65% { opacity: 0; transform: translateY(6px) scale(0.6); }
+  70% { opacity: 1; }
+  88%, 100% { opacity: 0; transform: translateY(-7px) scale(1.15); }
 }
 
 @media (prefers-reduced-motion: reduce) {
