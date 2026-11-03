@@ -34,7 +34,7 @@ const TOP_BAR = 60; // px, height of the sticky app bar
 // Names the owner may use in the sheet. Everything else pours coffee.
 const EFFECT_NAMES: [EffectKind, RegExp][] = [
   ["shisha", /shisha|hookah|argh?ile|شيشة|[أا]ركيلة|[أا]رجيلة|نرجيلة|معسل/i],
-  ["flip", /cr[eéê]pe|pan ?cake|كريب|بان ?كيك/i],
+  ["flip", /cr[eéê]pe|pan ?cake|waffle|brownie|كريب|بان ?كيك|وافل|براون[يى]/i],
 ];
 const effectForName = (name: string) => EFFECT_NAMES.find(([, pattern]) => pattern.test(name))?.[0];
 const EFFECT_SOUNDS: Record<EffectKind, () => void> = {
