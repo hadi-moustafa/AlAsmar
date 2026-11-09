@@ -45,6 +45,8 @@ export type Settings = {
   maps_url: string;
   announcement: string;
   delivery_enabled: string;
+  /** Category names in display order, separated by "|"; unlisted ones follow. */
+  category_order: string;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -59,4 +61,5 @@ export const DEFAULT_SETTINGS: Settings = {
   maps_url: "https://maps.app.goo.gl/NZzVyibw7Cs3BuqcA",
   announcement: "",
   delivery_enabled: "1",
+  category_order: "Crepe|Waffle|Mini Pancakes",
 };

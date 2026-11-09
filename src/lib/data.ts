@@ -34,7 +34,17 @@ export const SETTING_LABELS: Record<string, keyof Settings> = {
   "رابط الموقع": "maps_url",
   "إعلان": "announcement",
   "التوصيل": "delivery_enabled",
+  "ترتيب الأقسام": "category_order",
 };
+
+const norm = (s: string) => s.trim().toLowerCase();
+
+/** Puts the names listed in `order` ("A|B|C") first, in that order; the rest keep their place after them. */
+export function sortByOrder<T>(list: T[], order: string, name: (t: T) => string) {
+  const rank = new Map(order.split("|").map(norm).filter(Boolean).map((n, i) => [n, i]));
+  const at = (t: T) => rank.get(norm(name(t))) ?? Infinity;
+  return list.map((t, i) => ({ t, i })).sort((a, b) => at(a.t) - at(b.t) || a.i - b.i).map(({ t }) => t);
+}
 
 type Row = Record<string, string>;
 
@@ -207,5 +217,7 @@ export async function getPublicMenu() {
     else settings[key] = value;
   }
 
-  return { categories, items, offers, settings };
+  const ordered = sortByOrder(categories, settings.category_order, (c) => c.name).map((c, i) => ({ ...c, sort_order: i + 1 }));
+
+  return { categories: ordered, items, offers, settings };
 }
